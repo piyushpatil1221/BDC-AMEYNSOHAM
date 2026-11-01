@@ -1,0 +1,143 @@
+﻿{
+    "drift":  {
+                  "events":  [
+                                 {
+                                     "category":  "sports",
+                                     "direction":  "spike",
+                                     "event_ts":  1573263552500,
+                                     "wall_ts":  1793573571707,
+                                     "old_half_life_s":  21600.0,
+                                     "new_half_life_s":  10800.0,
+                                     "baseline_ctr":  0.13507109004739337,
+                                     "current_ctr":  0.1523545706371191
+                                 }
+                             ],
+                  "bursts":  [
+                                 {
+                                     "burst_id":  73534,
+                                     "category":  "sports",
+                                     "start_event_ts":  1573263364000,
+                                     "start_wall_ts":  1793573534175,
+                                     "articles":  12,
+                                     "ctr":  0.35,
+                                     "minutes":  90
+                                 }
+                             ],
+                  "lags":  [
+                               {
+                                   "burst_id":  73534,
+                                   "category":  "sports",
+                                   "event_lag_s":  188.5,
+                                   "wall_lag_s":  37.532,
+                                   "old_half_life_h":  6.0,
+                                   "new_half_life_h":  3.0
+                               }
+                           ]
+              },
+    "stats":  {
+                  "latency_ms":  {
+                                     "p50":  null,
+                                     "p95":  null,
+                                     "p99":  null,
+                                     "budget":  50,
+                                     "requests":  0
+                                 },
+                  "fallback_rate":  0.0,
+                  "paths":  {
+
+                            },
+                  "coldstart":  {
+                                    "articles":  944,
+                                    "within_target":  92,
+                                    "coverage":  0.0975,
+                                    "target_s":  10,
+                                    "p50_s":  17.09,
+                                    "p95_s":  40.71
+                                },
+                  "freshness_median_age_h":  null,
+                  "drift_lags":  [
+                                     {
+                                         "burst_id":  73534,
+                                         "category":  "sports",
+                                         "event_lag_s":  188.5,
+                                         "wall_lag_s":  37.532,
+                                         "old_half_life_h":  6.0,
+                                         "new_half_life_h":  3.0
+                                     }
+                                 ],
+                  "drift_events":  1,
+                  "event_clock":  1573272514000,
+                  "recent_cache":  944,
+                  "warm_items":  873,
+                  "qdrant_delay_ms":  0.0
+              },
+    "sports":  {
+                   "category":  "sports",
+                   "half_life_s":  12803.3325,
+                   "ewma_ctr":  0.3948598060194064,
+                   "drift_count":  1,
+                   "event_time":  1573266600000,
+                   "history":  [
+                                   {
+                                       "event_time":  1573258200000,
+                                       "half_life_h":  6.0,
+                                       "ctr":  0.008943119172566466,
+                                       "drift":  false
+                                   },
+                                   {
+                                       "event_time":  1573258800000,
+                                       "half_life_h":  6.0,
+                                       "ctr":  0.017134491058850006,
+                                       "drift":  false
+                                   },
+                                   {
+                                       "event_time":  1573260000000,
+                                       "half_life_h":  6.0,
+                                       "ctr":  0.03153174921648574,
+                                       "drift":  false
+                                   },
+                                   {
+                                       "event_time":  1573260600000,
+                                       "half_life_h":  6.0,
+                                       "ctr":  0.04414836525148977,
+                                       "drift":  false
+                                   },
+                                   {
+                                       "event_time":  1573261800000,
+                                       "half_life_h":  6.0,
+                                       "ctr":  0.020935568551979936,
+                                       "drift":  false
+                                   },
+                                   {
+                                       "event_time":  1573263600000,
+                                       "half_life_h":  3.0,
+                                       "ctr":  0.36938698096468353,
+                                       "drift":  true
+                                   },
+                                   {
+                                       "event_time":  1573264200000,
+                                       "half_life_h":  3.15,
+                                       "ctr":  0.3327675852916623,
+                                       "drift":  false
+                                   },
+                                   {
+                                       "event_time":  1573264800000,
+                                       "half_life_h":  3.2925,
+                                       "ctr":  0.36277108474324204,
+                                       "drift":  false
+                                   },
+                                   {
+                                       "event_time":  1573265400000,
+                                       "half_life_h":  3.4278750000000002,
+                                       "ctr":  0.3156441703829883,
+                                       "drift":  false
+                                   },
+                                   {
+                                       "event_time":  1573266600000,
+                                       "half_life_h":  3.55648125,
+                                       "ctr":  0.3948598060194064,
+                                       "drift":  false
+                                   }
+                               ]
+               }
+}

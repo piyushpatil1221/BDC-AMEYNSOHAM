@@ -10,6 +10,7 @@ kafka:
     dead_letter: dlq
     articles_embedded: articles.embedded
     drift_events: drift.events
+    bursts: control.bursts
 
 data:
   mirror: https://huggingface.co/datasets/huyva/MIND-small/resolve/d771a25043d6352e49e76ca1fe3075c9ac6862bb
@@ -33,3 +34,50 @@ qdrant:
 scylla:
   hosts: [scylla]
   keyspace: newsrec
+
+embedding:
+  url: http://embedding:8000
+  max_batch: 32          # server-side micro-batch size
+  max_wait_ms: 5         # server-side wait to fill a micro-batch
+
+flink:
+  python_execution_mode: process # process (separate Python workers, gRPC) | thread (in-JVM via PEMJA; hung
+                                 # silently with this job in testing, kept as an option)
+  start_from: earliest           # Kafka offsets for a fresh job: earliest | latest
+  watermark_out_of_orderness_s: 30
+  embed_batch_size: 16           # articles per embedding call / Qdrant upsert (fewer HNSW inserts)
+  embed_max_wait_ms: 500         # flush a partial batch after this long
+  session_gap_min: 20            # session window inactivity gap (event time)
+  session_half_life_min: 10      # decay of older clicks inside a session vector
+  cache_buckets: 16              # embedding cache = buckets x capacity entries (bounded LRU)
+  cache_capacity_per_bucket: 128
+  rollup_interval_min: 10        # topic stats -> ScyllaDB every N event-time minutes
+
+# Memory governance: State TTL per state family, in EVENT-time minutes. Flink TTL is processing-time
+# only, so the job divides these by the replay speed-up (e.g. 360 event-min at 60x = 6 wall-min).
+eviction:
+  enabled: true                  # false = ablation run: no TTL anywhere and no LRU bound
+  ttl_session_min: 30            # short: per-user state, matched to the session gap
+  ttl_embedding_cache_min: 360   # medium: an article's cold-start window
+  ttl_topic_decay_min: 1440      # long: topic/item stats, rolled up to ScyllaDB anyway
+
+decay:
+  default_half_life_h: 6
+  min_half_life_h: 1
+  max_half_life_h: 24
+  spike_factor: 0.5
+  slow_burn_factor: 1.5
+  relax_rate: 0.05               # per roll-up, toward the default
+  ewma_alpha: 0.01               # slow baseline the ADWIN window is compared against
+  adwin_delta: 0.002
+  prior_ctr: 0.04                # smoothing prior for item CTR (MIND-small CTR is ~4%)
+  prior_weight: 20
+
+serving:
+  budget_ms: 50
+  ann_limit: 50
+  fresh_window_h: 48             # ANN only over articles published within this window
+  alpha_session: 0.6             # weight of similarity vs decayed popularity
+  recent_cache_size: 2000        # in-memory fallback candidates
+  score_refresh_s: 5
+  coldstart_target_s: 10

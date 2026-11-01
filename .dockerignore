@@ -1,0 +1,8 @@
+.git
+data
+reports
+dashboard
+kafka-streams/build
+kafka-streams/.gradle
+**/__pycache__
+**/.pytest_cache

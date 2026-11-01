@@ -1,14 +1,21 @@
 # Real-time session-based news recommender: local, low-memory stack.
-# Every container has an explicit mem_limit (core budget target ~4.4 GB; see README).
-# Profiles: core (always), tools (one-shot jobs: init, data, replay), submit (Flink job submission).
+# Every container has an explicit mem_limit. Core budget (~4.4 GB) is listed in the README.
+# Profiles: core (the pipeline), monitoring (Prometheus + Grafana), tools (one-shot jobs), submit (Flink job).
 
 x-flink-common: &flink-common
-  build: ./flink-jobs
+  build:
+    context: .
+    dockerfile: flink-jobs/Dockerfile
   image: bdc/flink:1.20.5-py311
   profiles: ["core"]
   volumes:
     - flink-checkpoints:/opt/flink/checkpoints
     - ./config:/config:ro
+    - ./flink-jobs/newsrec:/opt/flink/usrlib/newsrec:ro   # live job code (picked up on each submission)
+    - ./newsrec_core:/opt/flink/usrlib/newsrec_core:ro
+  # No inline comments inside FLINK_PROPERTIES: Flink 1.20's YAML config parser rejects them. Notes:
+  #  - unaligned checkpoints let barriers overtake backpressured buffers, so checkpoints still complete
+  #  - python.*cache-size: larger Python-side keyed-state caches = fewer round trips to the JVM
   environment:
     FLINK_PROPERTIES: |
       jobmanager.rpc.address: jobmanager
@@ -22,10 +29,20 @@ x-flink-common: &flink-common
       state.backend.type: rocksdb
       state.backend.incremental: true
       state.backend.rocksdb.memory.managed: true
+      state.backend.rocksdb.metrics.estimate-live-data-size: true
+      state.backend.rocksdb.metrics.total-sst-files-size: true
+      state.backend.rocksdb.metrics.estimate-num-keys: true
       state.checkpoints.dir: file:///opt/flink/checkpoints
+      state.checkpoints.num-retained: 1
       execution.checkpointing.interval: 30s
+      execution.checkpointing.unaligned.enabled: true
+      python.state.cache-size: 20000
+      python.map-state.read-cache-size: 20000
+      python.map-state.write-cache-size: 20000
       python.executable: /opt/venv/bin/python
       python.client.executable: /opt/venv/bin/python
+      metrics.reporter.prom.factory.class: org.apache.flink.metrics.prometheus.PrometheusReporterFactory
+      metrics.reporter.prom.port: 9249
 
 x-python-tool: &python-tool
   profiles: ["tools"]
@@ -99,6 +116,30 @@ services:
     volumes:
       - scylla-data:/var/lib/scylla
 
+  # --- Models & serving ------------------------------------------------------------------------
+  embedding:
+    build: ./embedding-service
+    image: bdc/embedding:latest
+    profiles: ["core"]
+    mem_limit: 450m
+    ports: ["8001:8000"]
+    volumes:
+      - ./config:/config:ro
+
+  serving:
+    build:
+      context: .
+      dockerfile: serving-api/Dockerfile
+    image: bdc/serving:latest
+    profiles: ["core"]
+    mem_limit: 200m
+    ports: ["8000:8000"]
+    restart: on-failure
+    depends_on:
+      init: { condition: service_completed_successfully }
+    volumes:
+      - ./config:/config:ro
+
   # --- Stream processing -----------------------------------------------------------------------
   jobmanager:
     <<: *flink-common
@@ -119,10 +160,9 @@ services:
     profiles: ["submit"]
     depends_on: [jobmanager]
     mem_limit: 700m
-    entrypoint: ["flink", "run", "-d", "-m", "jobmanager:8081"]
-    command: ["-py", "/opt/flink/usrlib/spike/memory_probe.py"]
+    entrypoint: ["flink", "run", "-d", "-m", "jobmanager:8081", "-py", "/opt/flink/usrlib/newsrec/job.py"]
+    command: []
 
-  # --- One-shot tools --------------------------------------------------------------------------
   init:
     build: ./infra/init
     image: bdc/init:latest
@@ -135,12 +175,55 @@ services:
       - ./config:/config:ro
       - ./infra/scylla:/schema:ro
 
+  # --- Monitoring (optional) -------------------------------------------------------------------
+  prometheus:
+    image: prom/prometheus:v2.55.1
+    profiles: ["monitoring"]
+    mem_limit: 200m
+    ports: ["9090:9090"]
+    command: ["--config.file=/etc/prometheus/prometheus.yml", "--storage.tsdb.retention.time=6h"]
+    volumes:
+      - ./infra/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+
+  grafana:
+    image: grafana/grafana:11.3.1
+    profiles: ["monitoring"]
+    mem_limit: 200m
+    ports: ["3001:3000"]
+    environment:
+      GF_AUTH_ANONYMOUS_ENABLED: "true"
+      GF_AUTH_ANONYMOUS_ORG_ROLE: Viewer
+      GF_SECURITY_ALLOW_EMBEDDING: "true"
+      GF_SECURITY_ADMIN_PASSWORD: admin
+    volumes:
+      - ./infra/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./infra/grafana/dashboards:/var/lib/grafana/dashboards:ro
+
+  # --- One-shot tools --------------------------------------------------------------------------
   replay:
     <<: *python-tool
     build: ./replay
     image: bdc/replay:latest
     mem_limit: 400m
     command: ["replay.producer"]
+
+  eval:
+    build: ./eval
+    image: bdc/eval:latest
+    profiles: ["tools"]
+    mem_limit: 1g    # offline only, never runs alongside the full stack's peak
+    volumes:
+      - .:/w
+      - ./data:/data
+      - ./config:/config:ro
+
+  tests:
+    build: ./tests
+    image: bdc/tests:latest
+    profiles: ["tools"]
+    mem_limit: 300m
+    volumes:
+      - .:/w
 
 volumes:
   flink-checkpoints:

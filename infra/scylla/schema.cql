@@ -7,6 +7,7 @@ CREATE TABLE IF NOT EXISTS newsrec.session_vectors (
   user_id     text PRIMARY KEY,
   vector      list<float>,
   clicks      int,
+  clicked     list<text>,  -- recent clicked article ids (excluded from recommendations)
   session_end timestamp,   -- event time of the last click in the session
   updated_at  timestamp    -- wall clock
 ) WITH default_time_to_live = 7200;

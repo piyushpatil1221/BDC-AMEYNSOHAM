@@ -6,7 +6,7 @@ import yaml
 from cassandra.cluster import Cluster
 from confluent_kafka.admin import AdminClient, NewTopic
 from qdrant_client import QdrantClient
-from qdrant_client.models import Distance, HnswConfigDiff, PayloadSchemaType, VectorParams
+from qdrant_client.models import Distance, HnswConfigDiff, OptimizersConfigDiff, PayloadSchemaType, VectorParams
 
 T = TypeVar("T")
 CFG = yaml.safe_load(open("/config/pipeline.yaml", encoding="utf-8"))
@@ -44,6 +44,8 @@ def qdrant() -> None:
             # on_disk vectors keep the 300 MB container budget; HNSW m=16 is the standard recall/size trade-off.
             vectors_config=VectorParams(size=q["dim"], distance=Distance.COSINE, on_disk=True),
             hnsw_config=HnswConfigDiff(m=q["hnsw_m"], ef_construct=q["hnsw_ef_construct"], on_disk=False),
+            # Few segments: less background merging competing with searches on a small machine.
+            optimizers_config=OptimizersConfigDiff(default_segment_number=2),
             on_disk_payload=True,
         )
         client.create_payload_index(q["collection"], "publish_ts", PayloadSchemaType.INTEGER)
