@@ -102,6 +102,7 @@ def main() -> None:
     rng = random.Random(0)
     models = ["random", "popularity", "decayed_ctr", "session_blend", "history_blend"]
     scores_by_model = {m: defaultdict(list) for m in models}
+    session_only = {m: defaultdict(list) for m in models}  # impressions where the user had a live session
     n_with_session = n_test = 0
 
     def profile(user: str, hist: tuple[str, ...]) -> np.ndarray | None:
@@ -139,10 +140,11 @@ def main() -> None:
                     "history_blend": warm if hv is None else alpha * np.clip(cand_vecs @ hv, 0, None) + (1 - alpha) * warm_n,
                 }
                 for m, s in model_scores.items():
-                    scores_by_model[m]["auc"].append(auc(y, s))
-                    scores_by_model[m]["mrr"].append(mrr(y, s))
-                    scores_by_model[m]["ndcg@5"].append(ndcg(y, s, 5))
-                    scores_by_model[m]["ndcg@10"].append(ndcg(y, s, 10))
+                    for target in [scores_by_model[m]] + ([session_only[m]] if sv is not None else []):
+                        target["auc"].append(auc(y, s))
+                        target["mrr"].append(mrr(y, s))
+                        target["ndcg@5"].append(ndcg(y, s, 5))
+                        target["ndcg@10"].append(ndcg(y, s, 10))
         # feed back the labels
         for n, c in r.candidates:
             shows[n] += 1
@@ -155,18 +157,26 @@ def main() -> None:
                 last_click[r.user_id] = r.ts_ms
 
     results = {m: {k: float(np.mean(v)) for k, v in scores_by_model[m].items()} for m in models}
+    results_session = {m: {k: float(np.mean(v)) for k, v in session_only[m].items()} for m in models}
     meta = {"test_impressions": n_test, "with_live_session": n_with_session,
             "train_window": "day 1 of the subset", "test_window": "day 2 of the subset"}
     out = Path("/w/reports")
     out.mkdir(exist_ok=True)
-    (out / "eval.json").write_text(json.dumps({"meta": meta, "results": results}, indent=2))
-    lines = ["# Offline evaluation (MIND-small replay subset)", "",
-             f"Test impressions: {n_test} (day 2, labels from MIND). Impressions where the user had a live "
-             f"session vector: {n_with_session} ({n_with_session / max(n_test, 1):.1%}).", "",
-             "| Model | AUC | MRR | nDCG@5 | nDCG@10 |", "|---|---|---|---|---|"]
-    for m in models:
-        r_ = results[m]
-        lines.append(f"| {m} | {r_['auc']:.4f} | {r_['mrr']:.4f} | {r_['ndcg@5']:.4f} | {r_['ndcg@10']:.4f} |")
+    (out / "eval.json").write_text(json.dumps({"meta": meta, "results": results,
+                                               "results_live_session_only": results_session}, indent=2))
+
+    def table(res: dict) -> list[str]:
+        rows_ = ["| Model | AUC | MRR | nDCG@5 | nDCG@10 |", "|---|---|---|---|---|"]
+        for m in models:
+            r_ = res[m]
+            rows_.append(f"| {m} | {r_['auc']:.4f} | {r_['mrr']:.4f} | {r_['ndcg@5']:.4f} | {r_['ndcg@10']:.4f} |")
+        return rows_
+
+    lines = (["# Offline evaluation (MIND-small replay subset)", "",
+              f"Test impressions: {n_test} (day 2, labels from MIND). Impressions where the user had a live "
+              f"session vector: {n_with_session} ({n_with_session / max(n_test, 1):.1%}).", "",
+              "## All test impressions", ""] + table(results) +
+             ["", f"## Only impressions with a live session ({n_with_session})", ""] + table(results_session))
     (out / "eval.md").write_text("\n".join(lines) + "\n")
     print("\n".join(lines))
 
