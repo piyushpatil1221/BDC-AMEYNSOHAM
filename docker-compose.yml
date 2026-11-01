@@ -1,0 +1,52 @@
+# Real-time session-based news recommender: local, low-memory stack.
+# Every container has an explicit mem_limit (core budget target ~4.4 GB; see README).
+
+x-flink-common: &flink-common
+  build: ./flink-jobs
+  image: bdc/flink:1.20.5-py311
+  profiles: ["core"]
+  volumes:
+    - flink-checkpoints:/opt/flink/checkpoints
+  environment:
+    FLINK_PROPERTIES: |
+      jobmanager.rpc.address: jobmanager
+      jobmanager.memory.process.size: 640m
+      jobmanager.memory.off-heap.size: 32m
+      jobmanager.memory.jvm-metaspace.size: 192m
+      jobmanager.memory.jvm-overhead.min: 128m
+      taskmanager.memory.process.size: 1400m
+      taskmanager.numberOfTaskSlots: 2
+      parallelism.default: 1
+      state.backend.type: rocksdb
+      state.backend.incremental: true
+      state.backend.rocksdb.memory.managed: true
+      state.checkpoints.dir: file:///opt/flink/checkpoints
+      execution.checkpointing.interval: 30s
+      python.executable: /opt/venv/bin/python
+      python.client.executable: /opt/venv/bin/python
+
+services:
+  jobmanager:
+    <<: *flink-common
+    command: jobmanager
+    ports: ["8081:8081"]
+    mem_limit: 640m
+
+  taskmanager:
+    <<: *flink-common
+    command: taskmanager
+    depends_on: [jobmanager]
+    mem_limit: 1400m
+
+  # One-shot job submitter. `flink run -py` starts a JVM client plus a Python process;
+  # running it here keeps that transient memory out of the JobManager's 640 MB.
+  flink-submit:
+    <<: *flink-common
+    profiles: ["submit"]
+    depends_on: [jobmanager]
+    mem_limit: 700m
+    entrypoint: ["flink", "run", "-d", "-m", "jobmanager:8081"]
+    command: ["-py", "/opt/flink/usrlib/spike/memory_probe.py"]
+
+volumes:
+  flink-checkpoints:

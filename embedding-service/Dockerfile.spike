@@ -1,0 +1,12 @@
+# Phase 0 spike: download the official FP32 ONNX export, quantize it to INT8, benchmark both.
+FROM python:3.11-slim-bookworm
+ARG HF_REV=1110a243fdf4706b3f48f1d95db1a4f5529b4d41
+ARG HF=https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2/resolve/${HF_REV}
+RUN pip install --no-cache-dir onnxruntime==1.20.1 onnx==1.17.0 tokenizers==0.21.0 numpy==1.26.4
+WORKDIR /build
+ADD ${HF}/onnx/model.onnx model/model_fp32.onnx
+ADD ${HF}/tokenizer.json model/tokenizer.json
+COPY app app
+COPY scripts scripts
+RUN python scripts/quantize.py model/model_fp32.onnx model/model_int8.onnx
+CMD ["python", "scripts/bench.py", "model/model_fp32.onnx", "model/model_int8.onnx", "model/tokenizer.json"]

@@ -1,0 +1,11 @@
+# PyFlink worker environment (Python 3.11).
+# apache-flink 1.20.x depends on apache-beam<2.49, and beam 2.48 caps numpy<1.25 and pyarrow<12.
+# River 0.21.2 is the newest River whose requirements overlap that window
+# (numpy>=1.23,<2; pandas>=2.1,<3; scipy>=1.12.1,<2).
+apache-flink==1.20.5
+apache-beam==2.48.0
+numpy==1.24.4
+pyarrow==11.0.0
+pandas==2.1.4
+scipy==1.13.1
+river==0.21.2

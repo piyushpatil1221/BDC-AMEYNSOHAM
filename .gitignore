@@ -1,0 +1,23 @@
+# Data and generated artefacts
+data/
+*.onnx
+checkpoints/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+.pytest_cache/
+
+# Java / Gradle
+kafka-streams/build/
+kafka-streams/.gradle/
+
+# Node
+dashboard/node_modules/
+dashboard/.next/
+
+# Editors / OS
+.vscode/
+.idea/
+Thumbs.db
