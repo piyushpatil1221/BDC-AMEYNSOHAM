@@ -1,0 +1,16 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Article",
+  "type": "object",
+  "required": ["article_id", "publish_ts", "category", "subcategory", "title", "abstract", "url", "emitted_at"],
+  "properties": {
+    "article_id": { "type": "string", "pattern": "^[A-Z][0-9]+$" },
+    "publish_ts": { "type": "integer", "minimum": 0 },
+    "category":   { "type": "string", "minLength": 1 },
+    "subcategory":{ "type": "string" },
+    "title":      { "type": "string", "minLength": 1 },
+    "abstract":   { "type": "string" },
+    "url":        { "type": "string" },
+    "emitted_at": { "type": "integer", "minimum": 0 }
+  }
+}

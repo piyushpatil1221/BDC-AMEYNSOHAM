@@ -1,0 +1,15 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Event",
+  "type": "object",
+  "required": ["event_id", "type", "user_id", "article_id", "impression_id", "ts", "emitted_at"],
+  "properties": {
+    "event_id":      { "type": "string", "minLength": 1 },
+    "type":          { "enum": ["impression", "click"] },
+    "user_id":       { "type": "string", "pattern": "^U[0-9]+$" },
+    "article_id":    { "type": "string", "pattern": "^[A-Z][0-9]+$" },
+    "impression_id": { "type": "string" },
+    "ts":            { "type": "integer", "minimum": 0 },
+    "emitted_at":    { "type": "integer", "minimum": 0 }
+  }
+}

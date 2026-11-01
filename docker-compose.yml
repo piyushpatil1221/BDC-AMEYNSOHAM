@@ -32,6 +32,7 @@ x-python-tool: &python-tool
   volumes:
     - ./config:/config:ro
     - ./data:/data
+    - ./replay:/app/replay:ro   # live source, so script edits don't need an image rebuild
 
 services:
   # --- Messaging -------------------------------------------------------------------------------
@@ -60,6 +61,18 @@ services:
       KAFKA_HEAP_OPTS: -Xmx384m -Xms384m
     volumes:
       - kafka-data:/var/lib/kafka/data
+
+  kafka-streams:
+    build: ./kafka-streams
+    image: bdc/kafka-streams:latest
+    profiles: ["core"]
+    mem_limit: 256m
+    restart: on-failure
+    depends_on:
+      init: { condition: service_completed_successfully }
+    environment:
+      KAFKA_BOOTSTRAP: kafka:9092
+      DEDUP_WINDOW_MIN: 10
 
   # --- Storage ---------------------------------------------------------------------------------
   qdrant:
