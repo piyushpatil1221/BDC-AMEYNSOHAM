@@ -1,0 +1,4 @@
+confluent-kafka==2.6.1
+qdrant-client==1.12.1
+scylla-driver==3.28.2
+PyYAML==6.0.2

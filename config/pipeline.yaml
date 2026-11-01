@@ -1,0 +1,35 @@
+# Single source of truth for pipeline tunables. Every service mounts this file read-only.
+
+kafka:
+  bootstrap: kafka:9092
+  topics:
+    articles_raw: articles.raw
+    events_raw: events.raw
+    articles_clean: articles.clean
+    events_clean: events.clean
+    dead_letter: dlq
+    articles_embedded: articles.embedded
+    drift_events: drift.events
+
+data:
+  mirror: https://huggingface.co/datasets/huyva/MIND-small/resolve/d771a25043d6352e49e76ca1fe3075c9ac6862bb
+  raw_dir: /data/mind
+  subset_dir: /data/subset
+
+replay:
+  days: 2               # first N days of behaviors.tsv
+  users: 5000           # users sampled (seeded) from those days
+  seed: 42
+  speedup: 60           # 1 h of event time per minute of wall time
+  publish_offset_s: 30  # synthetic publish time = first impression - this offset
+
+qdrant:
+  url: http://qdrant:6333
+  collection: articles
+  dim: 384
+  hnsw_m: 16
+  hnsw_ef_construct: 100
+
+scylla:
+  hosts: [scylla]
+  keyspace: newsrec
