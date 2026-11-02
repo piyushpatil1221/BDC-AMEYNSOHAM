@@ -7,6 +7,7 @@ report Section 5.2). The encoder runs in a worker thread so the event loop keeps
 from __future__ import annotations
 
 import asyncio
+import logging
 import os
 import time
 from contextlib import asynccontextmanager
@@ -42,35 +43,47 @@ class MicroBatcher:
         return await fut
 
     async def run(self) -> None:
-        loop = asyncio.get_running_loop()
+        # The loop must never die: if it did, every later request would time out with 503.
         while True:
-            batch = [await self.queue.get()]
-            n = len(batch[0][0])
-            deadline = loop.time() + self.max_wait
-            while n < self.max_batch:
-                remaining = deadline - loop.time()
-                if remaining <= 0:
-                    break
-                try:
-                    item = await asyncio.wait_for(self.queue.get(), remaining)
-                except asyncio.TimeoutError:
-                    break
-                batch.append(item)
-                n += len(item[0])
-            texts = [t for texts, _ in batch for t in texts]
-            BATCH_SIZE.observe(len(texts))
-            t0 = time.perf_counter()
             try:
-                vecs = await loop.run_in_executor(None, self.encoder.encode, texts)
-            except Exception as e:  # fail every waiter in this batch, keep serving
-                for _, fut in batch:
+                await self._one_batch()
+            except asyncio.CancelledError:
+                raise
+            except Exception:
+                logging.exception("micro-batch failed; continuing")
+
+    async def _one_batch(self) -> None:
+        loop = asyncio.get_running_loop()
+        batch = [await self.queue.get()]
+        n = len(batch[0][0])
+        deadline = loop.time() + self.max_wait
+        while n < self.max_batch:
+            remaining = deadline - loop.time()
+            if remaining <= 0:
+                break
+            try:
+                item = await asyncio.wait_for(self.queue.get(), remaining)
+            except asyncio.TimeoutError:
+                break
+            batch.append(item)
+            n += len(item[0])
+        texts = [t for texts, _ in batch for t in texts]
+        BATCH_SIZE.observe(len(texts))
+        t0 = time.perf_counter()
+        try:
+            vecs = await loop.run_in_executor(None, self.encoder.encode, texts)
+        except Exception as e:  # fail every waiter in this batch, keep serving
+            for _, fut in batch:
+                if not fut.done():
                     fut.set_exception(e)
-                continue
-            ENCODE_SECONDS.observe(time.perf_counter() - t0)
-            i = 0
-            for texts_i, fut in batch:
+            return
+        ENCODE_SECONDS.observe(time.perf_counter() - t0)
+        i = 0
+        for texts_i, fut in batch:
+            # A waiter whose request already timed out has a cancelled future: skip it.
+            if not fut.done():
                 fut.set_result(vecs[i:i + len(texts_i)])
-                i += len(texts_i)
+            i += len(texts_i)
 
 
 batcher: MicroBatcher | None = None

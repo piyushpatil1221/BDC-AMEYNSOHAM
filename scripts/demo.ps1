@@ -25,7 +25,7 @@ if (-not (Test-Path "data\subset\behaviors.tsv")) {
 if ($Fresh) { docker compose --profile core --profile monitoring --profile tools --profile submit down -v }
 
 Write-Host "Starting core + monitoring stack..."
-docker compose --profile core --profile monitoring up -d --build
+docker compose --profile core --profile monitoring up -d   # builds only images that are missing
 Wait-Until { (docker inspect -f "{{.State.Status}}" sohamameybdc-init-1) -eq "exited" } 300 "bootstrap"
 Wait-Until { (Invoke-RestMethod http://localhost:8081/overview -TimeoutSec 3).'slots-total' -ge 2 } 180 "Flink"
 
