@@ -4,7 +4,8 @@
 param(
     [int]$ReplayMinutes = 2880,     # event-time minutes to replay (2880 = the full 2-day subset, ~48 min wall)
     [int]$BurstAfterSeconds = 240,  # when to inject the sports burst
-    [switch]$Fresh                  # wipe all state first
+    [switch]$Fresh,                 # wipe all state first
+    [switch]$NoMonitoring           # skip Prometheus + Grafana (saves ~200 MB on an 8 GB laptop)
 )
 $ErrorActionPreference = "Stop"
 $root = Split-Path -Parent $PSScriptRoot
@@ -24,8 +25,9 @@ if (-not (Test-Path "data\subset\behaviors.tsv")) {
 }
 if ($Fresh) { docker compose --profile core --profile monitoring --profile tools --profile submit down -v }
 
-Write-Host "Starting core + monitoring stack..."
-docker compose --profile core --profile monitoring up -d   # builds only images that are missing
+$profiles = @("--profile", "core") + $(if ($NoMonitoring) { @() } else { @("--profile", "monitoring") })
+Write-Host "Starting stack ($($profiles -join ' '))..."
+docker compose @profiles up -d   # builds only images that are missing
 Wait-Until { (docker inspect -f "{{.State.Status}}" sohamameybdc-init-1) -eq "exited" } 300 "bootstrap"
 Wait-Until { (Invoke-RestMethod http://localhost:8081/overview -TimeoutSec 3).'slots-total' -ge 2 } 180 "Flink"
 

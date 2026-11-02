@@ -118,7 +118,8 @@ async def embed(req: EmbedRequest) -> EmbedResponse:
     assert batcher is not None
     t0 = time.perf_counter()
     try:
-        vecs = await asyncio.wait_for(batcher.submit(req.texts), timeout=5)
+        # Generous: on an 8 GB laptop under memory pressure an encode can stall for seconds.
+        vecs = await asyncio.wait_for(batcher.submit(req.texts), timeout=30)
     except asyncio.TimeoutError:
         raise HTTPException(503, "encoder busy")
     ms = (time.perf_counter() - t0) * 1000

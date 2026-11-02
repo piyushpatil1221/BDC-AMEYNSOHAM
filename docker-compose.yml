@@ -55,6 +55,7 @@ services:
   # --- Messaging -------------------------------------------------------------------------------
   kafka:
     image: apache/kafka:3.8.1
+    restart: unless-stopped
     profiles: ["core"]
     mem_limit: 512m
     ports: ["29092:29092"]  # host access (localhost:29092); containers use kafka:9092
@@ -84,7 +85,7 @@ services:
     image: bdc/kafka-streams:latest
     profiles: ["core"]
     mem_limit: 256m
-    restart: on-failure
+    restart: unless-stopped
     depends_on:
       init: { condition: service_completed_successfully }
     environment:
@@ -94,6 +95,7 @@ services:
   # --- Storage ---------------------------------------------------------------------------------
   qdrant:
     image: qdrant/qdrant:v1.12.5
+    restart: unless-stopped
     profiles: ["core"]
     mem_limit: 300m
     ports: ["6333:6333"]
@@ -102,6 +104,7 @@ services:
 
   scylla:
     image: scylladb/scylla:6.2.3
+    restart: unless-stopped
     profiles: ["core"]
     mem_limit: 700m
     # Seastar keeps a reserve outside --memory; 600M did not fit a 700 MB cgroup (needs ~550 MiB, sees ~477).
@@ -120,6 +123,7 @@ services:
   embedding:
     build: ./embedding-service
     image: bdc/embedding:latest
+    restart: unless-stopped
     profiles: ["core"]
     mem_limit: 450m
     ports: ["8001:8000"]
@@ -134,7 +138,7 @@ services:
     profiles: ["core"]
     mem_limit: 200m
     ports: ["8000:8000"]
-    restart: on-failure
+    restart: unless-stopped
     depends_on:
       init: { condition: service_completed_successfully }
     volumes:
@@ -144,12 +148,14 @@ services:
   jobmanager:
     <<: *flink-common
     command: jobmanager
+    restart: unless-stopped
     ports: ["8081:8081"]
     mem_limit: 640m
 
   taskmanager:
     <<: *flink-common
     command: taskmanager
+    restart: unless-stopped
     depends_on: [jobmanager]
     mem_limit: 1400m
 
@@ -178,6 +184,7 @@ services:
   # --- Monitoring (optional) -------------------------------------------------------------------
   prometheus:
     image: prom/prometheus:v2.55.1
+    restart: unless-stopped
     profiles: ["monitoring"]
     mem_limit: 200m
     ports: ["9090:9090"]
@@ -187,6 +194,7 @@ services:
 
   grafana:
     image: grafana/grafana:11.3.1
+    restart: unless-stopped
     profiles: ["monitoring"]
     mem_limit: 200m
     ports: ["3001:3000"]

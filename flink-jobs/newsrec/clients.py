@@ -10,9 +10,10 @@ from typing import Any
 log = logging.getLogger("newsrec")
 
 
-def http_json(method: str, url: str, payload: Any, timeout: float = 10, retries: int = 5) -> Any:
-    """JSON request with exponential back-off. Raises after `retries` attempts so Flink restarts
-    the task from the last checkpoint instead of silently dropping data."""
+def http_json(method: str, url: str, payload: Any, timeout: float = 45, retries: int = 8) -> Any:
+    """JSON request with exponential back-off (0.5 s ... 64 s). Raises after `retries` attempts so
+    Flink restarts the task from the last checkpoint instead of silently dropping data; the long
+    budget rides out a dependency that is merely slow (e.g. the host paging) without a restart."""
     body = json.dumps(payload).encode()
     for attempt in range(retries):
         try:

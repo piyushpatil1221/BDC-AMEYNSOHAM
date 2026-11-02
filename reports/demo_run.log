@@ -1,0 +1,67 @@
+﻿powershell :  Network sohamameybdc_default Removing 
+At line:1 char:302
++ ... tch {} } }; powershell -NoProfile -ExecutionPolicy Bypass -File scrip ...
++                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: ( Network sohamameybdc_default Removing :String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+ Volume sohamameybdc_kafka-data Removing 
+ Volume sohamameybdc_flink-checkpoints Removing 
+ Volume sohamameybdc_scylla-data Removing 
+ Volume sohamameybdc_qdrant-data Removing 
+ Volume sohamameybdc_kafka-data Removed 
+ Volume sohamameybdc_flink-checkpoints Removed 
+ Volume sohamameybdc_scylla-data Removed 
+ Volume sohamameybdc_qdrant-data Removed 
+ Network sohamameybdc_default Removed 
+Starting stack (--profile core)...
+ Volume sohamameybdc_flink-checkpoints Creating 
+ Volume sohamameybdc_flink-checkpoints Creating 
+ Volume sohamameybdc_qdrant-data Creating 
+ Volume sohamameybdc_qdrant-data Creating 
+ Network sohamameybdc_default Creating 
+ Volume sohamameybdc_kafka-data Creating 
+ Volume sohamameybdc_scylla-data Creating 
+ Volume sohamameybdc_kafka-data Creating 
+ Network sohamameybdc_default Creating 
+ Volume sohamameybdc_scylla-data Creating 
+ Volume sohamameybdc_qdrant-data Created 
+ Volume sohamameybdc_qdrant-data Created 
+ Volume sohamameybdc_kafka-data Created 
+ Volume sohamameybdc_kafka-data Created 
+ Volume sohamameybdc_scylla-data Created 
+ Volume sohamameybdc_scylla-data Created 
+ Volume sohamameybdc_flink-checkpoints Created 
+ Volume sohamameybdc_flink-checkpoints Created 
+ Network sohamameybdc_default Created 
+ Network sohamameybdc_default Created 
+ Container sohamameybdc-embedding-1 Creating 
+ Container sohamameybdc-jobmanager-1 Creating 
+ Container sohamameybdc-qdrant-1 Creating 
+ Container sohamameybdc-kafka-1 Creating 
+ Container sohamameybdc-scylla-1 Creating 
+ Container sohamameybdc-embedding-1 Created 
+ Container sohamameybdc-scylla-1 Created 
+ Container sohamameybdc-init-1 Creating 
+ Container sohamameybdc-qdrant-1 Created 
+ Container sohamameybdc-kafka-1 Created 
+ Container sohamameybdc-jobmanager-1 Created 
+ Container sohamameybdc-taskmanager-1 Creating 
+ Container sohamameybdc-init-1 Created 
+ Container sohamameybdc-serving-1 Creating 
+ Container sohamameybdc-kafka-streams-1 Creating 
+ Container sohamameybdc-taskmanager-1 Created 
+ Container sohamameybdc-kafka-streams-1 Created 
+ Container sohamameybdc-serving-1 Created 
+ Container sohamameybdc-qdrant-1 Starting 
+ Container sohamameybdc-embedding-1 Starting 
+ Container sohamameybdc-jobmanager-1 Starting 
+ Container sohamameybdc-kafka-1 Starting 
+ Container sohamameybdc-scylla-1 Starting 
+ Container sohamameybdc-embedding-1 Started 
+ Container sohamameybdc-qdrant-1 Started 
+ Container sohamameybdc-jobmanager-1 Started 
+ Container sohamameybdc-taskmanager-1 Starting 
+ Container sohamameybdc-kafka-1 Started 
+ Container sohamameybdc-scylla-1 Started 
+ Container sohamameybdc-scylla-1 Waiting 
