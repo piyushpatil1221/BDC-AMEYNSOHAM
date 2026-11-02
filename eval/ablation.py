@@ -33,8 +33,23 @@ def sh(args: list[str]) -> str:
 
 
 def get(url: str):
-    with urllib.request.urlopen(url, timeout=10) as r:
+    with urllib.request.urlopen(url, timeout=30) as r:
         return json.loads(r.read())
+
+
+FIELDS = ["mode", "t_s", "event_min", "state_mb", "checkpointed_mb", "checkpoint_ms", "checkpoints_ok",
+          "checkpoints_failed", "tm_mem_mib"]
+CSV_PATH = Path("reports") / "ablation.csv"
+
+
+def append_row(row: dict) -> None:
+    """Persist every sample immediately, so a crash mid-run never loses the data collected so far."""
+    new = not CSV_PATH.exists()
+    with CSV_PATH.open("a", newline="") as f:
+        w = csv.DictWriter(f, fieldnames=FIELDS)
+        if new:
+            w.writeheader()
+        w.writerow(row)
 
 
 def wait(pred, timeout: float, what: str) -> None:
@@ -87,9 +102,15 @@ def run(mode: str, speedup: float, minutes: float, rows: list[dict]) -> dict:
     while True:
         time.sleep(10)
         t = time.time() - t0
-        mem = tm_mem_mib()
+        try:
+            mem = tm_mem_mib()
+            cp = get(f"{FLINK}/jobs/{jid}/checkpoints")
+        except Exception as e:  # a busy JobManager may miss one poll; skip the sample, keep the run
+            print(f"  t={t:>4.0f}s  sample skipped ({type(e).__name__})", flush=True)
+            if replay_done_at is None and replay.poll() is not None:
+                replay_done_at = time.time()
+            continue
         peak_mem = max(peak_mem, mem)
-        cp = get(f"{FLINK}/jobs/{jid}/checkpoints")
         last = (cp.get("latest") or {}).get("completed") or {}
         row = {"mode": mode, "t_s": round(t), "event_min": round(t * speedup / 60),
                "state_mb": round(last.get("state_size", 0) / 1e6, 3),
@@ -98,6 +119,7 @@ def run(mode: str, speedup: float, minutes: float, rows: list[dict]) -> dict:
                "checkpoints_ok": cp["counts"]["completed"], "checkpoints_failed": cp["counts"]["failed"],
                "tm_mem_mib": round(mem, 1)}
         rows.append(row)
+        append_row(row)
         print(f"  t={row['t_s']:>4}s  state={row['state_mb']:>7} MB  ckpt={row['checkpoint_ms']} ms  "
               f"tm={row['tm_mem_mib']} MiB", flush=True)
         if mem >= WATCHDOG * TM_LIMIT_MIB:
@@ -123,16 +145,22 @@ def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--speedup", type=float, default=180)
     ap.add_argument("--minutes", type=float, default=1440, help="event-time minutes replayed per run")
+    ap.add_argument("--modes", default="on,off", help="comma-separated subset, e.g. 'off' to redo one run")
     args = ap.parse_args()
     out = Path("reports")
     out.mkdir(exist_ok=True)
+    modes = args.modes.split(",")
+    summary_path = out / "ablation_summary.json"
+    previous = json.loads(summary_path.read_text()) if summary_path.exists() and modes != ["on", "off"] else []
+    if CSV_PATH.exists():  # drop old samples of the modes being re-run
+        kept = [r for r in csv.DictReader(CSV_PATH.open()) if r["mode"] not in modes]
+        CSV_PATH.unlink()
+        for r in kept:
+            append_row(r)
     rows: list[dict] = []
-    summary = [run(mode, args.speedup, args.minutes, rows) for mode in ("on", "off")]
-    with (out / "ablation.csv").open("w", newline="") as f:
-        w = csv.DictWriter(f, fieldnames=list(rows[0]))
-        w.writeheader()
-        w.writerows(rows)
-    (out / "ablation_summary.json").write_text(json.dumps(summary, indent=2))
+    summary = [s for s in previous if s["mode"] not in modes] + [run(m, args.speedup, args.minutes, rows) for m in modes]
+    summary.sort(key=lambda s: s["mode"] != "on")
+    summary_path.write_text(json.dumps(summary, indent=2))
     print(json.dumps(summary, indent=2))
     sh(ALL + ["down"])
     subprocess.run(["docker", "compose", "--profile", "tools", "run", "--rm", "--no-deps", "eval", "eval.plot_ablation"],

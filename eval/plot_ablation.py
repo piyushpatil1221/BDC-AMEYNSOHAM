@@ -17,22 +17,33 @@ LABELS = {"on": "TTL + LRU eviction ON", "off": "Eviction OFF"}
 SURFACE, TEXT, MUTED, GRID = "#fcfcfb", "#0b0b0b", "#52514e", "#e4e3df"
 
 
+MAX_EVENT_MIN = None  # set from the summary: only the replayed window, not the drain afterwards
+
+
 def series(rows, mode, key):
     pts = [(int(r["event_min"]) / 60, float(r[key])) for r in rows
-           if r["mode"] == mode and r[key] not in ("", "None") and float(r["state_mb"]) > 0]
+           if r["mode"] == mode and r[key] not in ("", "None") and float(r["state_mb"]) > 0
+           and (MAX_EVENT_MIN is None or int(r["event_min"]) <= MAX_EVENT_MIN)]
     return [p[0] for p in pts], [p[1] for p in pts]
 
 
-def chart(rows, key, title, ylabel, fname, cutoff=None, limit=None):
+def chart(rows, key, title, ylabel, fname, cutoff=None, limit=None, legend_loc="upper left"):
     fig, ax = plt.subplots(figsize=(8, 4.2), dpi=150)
     fig.patch.set_facecolor(SURFACE)
     ax.set_facecolor(SURFACE)
+    ends = {}
     for mode in ("on", "off"):
         x, y = series(rows, mode, key)
         if not x:
             continue
         ax.plot(x, y, color=COLORS[mode], linewidth=2, label=LABELS[mode], solid_capstyle="round")
-        ax.annotate(LABELS[mode], (x[-1], y[-1]), xytext=(6, 0), textcoords="offset points",
+        ends[mode] = (x[-1], y[-1])
+    # Direct end labels; nudge them apart when the two lines finish close together.
+    span = max((v for _, v in ends.values()), default=1) or 1
+    close = len(ends) == 2 and abs(ends["on"][1] - ends["off"][1]) < 0.08 * span
+    for mode, (xe, ye) in ends.items():
+        dy = (7 if ends[mode][1] >= ends[{"on": "off", "off": "on"}[mode]][1] else -7) if close else 0
+        ax.annotate(LABELS[mode], (xe, ye), xytext=(6, dy), textcoords="offset points",
                     color=TEXT, fontsize=8, va="center")
     if limit is not None:
         ax.axhline(limit, color=MUTED, linewidth=1, linestyle="--")
@@ -54,19 +65,23 @@ def chart(rows, key, title, ylabel, fname, cutoff=None, limit=None):
     ax.tick_params(colors=MUTED, labelsize=8)
     ax.set_ylim(bottom=0)
     ax.margins(x=0.12)
-    ax.legend(frameon=False, fontsize=8, labelcolor=TEXT, loc="upper left")
+    ax.legend(frameon=False, fontsize=8, labelcolor=TEXT, loc=legend_loc)
     fig.tight_layout()
     fig.savefig(REPORTS / fname, facecolor=SURFACE)
     plt.close(fig)
 
 
 def main() -> None:
+    global MAX_EVENT_MIN
     rows = list(csv.DictReader((REPORTS / "ablation.csv").open()))
     summary = json.loads((REPORTS / "ablation_summary.json").read_text())
+    MAX_EVENT_MIN = summary[0]["event_minutes"]
     cutoff = next((s["watchdog_cutoff"] for s in summary if s["mode"] == "off" and s["watchdog_cutoff"]), None)
     chart(rows, "state_mb", "Flink keyed state size (full checkpoint)", "MB", "ablation_state_size.png", cutoff)
-    chart(rows, "checkpoint_ms", "Checkpoint duration", "ms", "ablation_checkpoint_duration.png", cutoff)
-    chart(rows, "tm_mem_mib", "TaskManager container memory", "MiB", "ablation_memory.png", cutoff, limit=1400 * 0.9)
+    chart(rows, "checkpoint_ms", "Checkpoint duration", "ms", "ablation_checkpoint_duration.png", cutoff,
+          legend_loc="upper right")
+    chart(rows, "tm_mem_mib", "TaskManager container memory", "MiB", "ablation_memory.png", cutoff,
+          limit=1400 * 0.9, legend_loc="lower right")
 
     lines = ["# Eviction ablation", "",
              f"Same replay ({summary[0]['event_minutes'] / 60:.0f} h of event time at {summary[0]['speedup']:g}x), "

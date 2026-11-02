@@ -129,7 +129,59 @@ path (in-memory recent-articles cache) and stay inside the budget. Set `ms=0` to
 
 See [reports/](reports/). Numbers below come from runs on the 8 GB development laptop.
 
-<!-- RESULTS -->
+### Eviction ablation (CA2): `make ablation`
+
+The same 24 h of event time is replayed at 120× from fresh state, once with TTL + LRU eviction and once without
+([reports/ablation.md](reports/ablation.md), log in [reports/ablation.log](reports/ablation.log)).
+
+| Run | Final keyed state | Peak keyed state | Mean / max checkpoint | Peak TM memory | Watchdog (90% of 1400 MiB) |
+|---|---|---|---|---|---|
+| TTL + LRU eviction **ON** | **1.47 MB** | 3.23 MB | 11.1 s / 36.8 s | 892 MiB | not reached |
+| Eviction **OFF** | 6.38 MB | 6.40 MB | 8.2 s / 29.6 s | 888 MiB | not reached |
+
+![State size](reports/ablation_state_size.png)
+
+- **State size is the clear result.** Without eviction, keyed state grows steadily with the catalogue and the user
+  base: about 0.27 MB per event-hour, ending **4.3× larger**. With eviction it rises until the medium TTL (6
+  event-hours) starts expiring cache entries, peaks at about 9 h, then *falls* and stays bounded as TTL and LRU
+  remove cold entries faster than new ones arrive.
+- **Checkpoint duration did not improve at this scale.** At a few MB, a checkpoint's duration is dominated by
+  barrier alignment under backpressure and PyFlink bundle flushes, not by bytes uploaded. The ON run is slightly
+  slower on average, which is consistent with the extra delete and compaction work eviction causes. The size gap
+  (and with it upload time and recovery time) widens linearly with days replayed.
+- **TaskManager memory is the same in both runs**, at about 890 MiB. RocksDB keeps state off-heap within its fixed
+  managed-memory budget, and the JVM plus PyFlink workers dominate the footprint. So the watchdog was never reached
+  in 24 h. The OFF run's growth is unbounded, but on a 5,000-user subset it would take far longer than one day to
+  matter. At production scale (millions of users and articles) the same slope is what exhausts memory and disk.
+- Charts: [state size](reports/ablation_state_size.png), [checkpoint duration](reports/ablation_checkpoint_duration.png),
+  [TM memory](reports/ablation_memory.png).
+
+### Offline quality vs MIND labels: `make eval`
+
+Day-2 impressions of the subset are scored in time order, using only information available before each impression
+([reports/eval.md](reports/eval.md)):
+
+| Model | AUC | MRR | nDCG@5 | nDCG@10 |
+|---|---|---|---|---|
+| Random | 0.503 | 0.256 | 0.267 | 0.321 |
+| Popularity (clicks so far) | 0.621 | 0.348 | 0.366 | 0.413 |
+| Decayed CTR (warm score) | 0.654 | 0.379 | 0.398 | 0.442 |
+| Session blend (serving formula) | 0.655 | 0.379 | 0.399 | 0.442 |
+| History blend (cross-session bound) | **0.705** | **0.403** | **0.427** | **0.477** |
+
+On the 204 impressions (4.4%) where the user had a live session, the session blend beats decayed CTR: AUC 0.611 vs
+0.591, nDCG@10 0.363 vs 0.353.
+
+### Live pipeline (Section 5.5)
+
+| Metric | Result |
+|---|---|
+| Cold-start coverage (retrievable ≤ 10 s) | 68% at 120× (median 8.6 s); recent articles 3–8 s at 60× once warmed up |
+| Recommend latency | p50 ≈ 21 ms at 20 req/s; 87% ANN path, 12% fallback while Qdrant is under heavy writes |
+| Drift-detection lag | sports burst detected as a **spike** after **188 s event time** (37 s wall); half-life 6 h → 3 h |
+| Data quality | 6/6 invalid records → DLQ with reasons; 10/10 duplicates dropped |
+| Embedding model | INT8 58.8 MB (FP32 90.4 MB), 4.2 ms/article, 0.992 cosine vs FP32 |
+| Tests | 38 unit tests + 6-check end-to-end smoke test passing |
 
 ## Known limitations vs the production design
 

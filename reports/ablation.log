@@ -1,0 +1,173 @@
+﻿
+=== eviction ON: resetting stack
+  t=  10s  state=    0.0 MB  ckpt=None ms  tm=682.8 MiB
+  t=  25s  state=    0.0 MB  ckpt=None ms  tm=744.7 MiB
+  t=  38s  state=    0.0 MB  ckpt=None ms  tm=784.0 MiB
+  t=  52s  state=    0.0 MB  ckpt=None ms  tm=805.0 MiB
+  t=  65s  state=    0.0 MB  ckpt=None ms  tm=845.9 MiB
+  t=  80s  state=  1.268 MB  ckpt=36837 ms  tm=852.6 MiB
+  t=  93s  state=  1.767 MB  ckpt=20617 ms  tm=842.1 MiB
+  t= 106s  state=  1.855 MB  ckpt=7790 ms  tm=843.1 MiB
+  t= 119s  state=  1.855 MB  ckpt=7790 ms  tm=869.3 MiB
+  t= 134s  state=  2.315 MB  ckpt=9693 ms  tm=864.6 MiB
+  t= 146s  state=  2.315 MB  ckpt=9693 ms  tm=840.4 MiB
+  t= 160s  state=  2.315 MB  ckpt=9693 ms  tm=845.7 MiB
+  t= 174s  state=  2.738 MB  ckpt=21279 ms  tm=847.9 MiB
+  t= 188s  state=  2.738 MB  ckpt=21279 ms  tm=849.5 MiB
+  t= 201s  state=  2.738 MB  ckpt=21279 ms  tm=846.6 MiB
+  t= 215s  state=  2.904 MB  ckpt=27061 ms  tm=851.8 MiB
+  t= 231s  state=  2.904 MB  ckpt=27061 ms  tm=851.7 MiB
+  t= 244s  state=  3.211 MB  ckpt=27017 ms  tm=847.6 MiB
+  t= 259s  state=  3.211 MB  ckpt=27017 ms  tm=852.7 MiB
+  t= 271s  state=  3.232 MB  ckpt=18958 ms  tm=851.5 MiB
+  t= 285s  state=  2.742 MB  ckpt=12457 ms  tm=850.1 MiB
+  t= 298s  state=  2.742 MB  ckpt=12457 ms  tm=862.5 MiB
+  t= 310s  state=  2.742 MB  ckpt=12457 ms  tm=861.4 MiB
+  t= 323s  state=  2.256 MB  ckpt=11931 ms  tm=858.1 MiB
+  t= 337s  state=  2.256 MB  ckpt=11931 ms  tm=846.9 MiB
+  t= 350s  state=  2.222 MB  ckpt=10413 ms  tm=854.5 MiB
+  t= 363s  state=  2.222 MB  ckpt=10413 ms  tm=859.0 MiB
+  t= 376s  state=  2.079 MB  ckpt=7391 ms  tm=878.6 MiB
+  t= 389s  state=  2.079 MB  ckpt=7391 ms  tm=877.6 MiB
+  t= 401s  state=  2.079 MB  ckpt=7391 ms  tm=866.3 MiB
+  t= 414s  state=   2.06 MB  ckpt=14809 ms  tm=858.7 MiB
+  t= 428s  state=   2.06 MB  ckpt=14809 ms  tm=865.0 MiB
+  t= 441s  state=  2.274 MB  ckpt=17686 ms  tm=871.5 MiB
+  t= 454s  state=  2.274 MB  ckpt=17686 ms  tm=858.8 MiB
+  t= 468s  state=  1.928 MB  ckpt=12662 ms  tm=863.8 MiB
+  t= 480s  state=  1.928 MB  ckpt=12662 ms  tm=865.7 MiB
+  t= 493s  state=  2.012 MB  ckpt=9355 ms  tm=863.4 MiB
+  t= 506s  state=  2.012 MB  ckpt=9355 ms  tm=875.5 MiB
+  t= 520s  state=  2.012 MB  ckpt=9355 ms  tm=882.3 MiB
+  t= 533s  state=  1.836 MB  ckpt=11045 ms  tm=891.9 MiB
+  t= 547s  state=  1.836 MB  ckpt=11045 ms  tm=862.0 MiB
+  t= 560s  state=  1.836 MB  ckpt=11045 ms  tm=874.0 MiB
+  t= 572s  state=  1.908 MB  ckpt=19043 ms  tm=884.4 MiB
+  t= 585s  state=  1.957 MB  ckpt=11426 ms  tm=878.3 MiB
+  t= 599s  state=  1.957 MB  ckpt=11426 ms  tm=875.9 MiB
+  t= 613s  state=  1.856 MB  ckpt=3605 ms  tm=862.0 MiB
+  t= 625s  state=  1.856 MB  ckpt=3605 ms  tm=864.2 MiB
+  t= 638s  state=  1.746 MB  ckpt=3417 ms  tm=864.2 MiB
+  t= 651s  state=  1.746 MB  ckpt=3417 ms  tm=871.8 MiB
+  t= 663s  state=  1.746 MB  ckpt=3417 ms  tm=879.1 MiB
+  t= 676s  state=  1.706 MB  ckpt=2186 ms  tm=882.6 MiB
+  t= 689s  state=  1.706 MB  ckpt=2186 ms  tm=882.2 MiB
+  t= 702s  state=  1.494 MB  ckpt=2785 ms  tm=881.5 MiB
+  t= 714s  state=  1.494 MB  ckpt=2785 ms  tm=865.7 MiB
+  t= 727s  state=    1.6 MB  ckpt=3529 ms  tm=873.7 MiB
+  t= 740s  state=    1.6 MB  ckpt=3529 ms  tm=872.6 MiB
+  t= 752s  state=    1.6 MB  ckpt=3529 ms  tm=873.1 MiB
+  t= 764s  state=  1.467 MB  ckpt=496 ms  tm=865.4 MiB
+  t= 777s  state=  1.467 MB  ckpt=496 ms  tm=875.8 MiB
+  t= 789s  state=  1.467 MB  ckpt=168 ms  tm=874.0 MiB
+  t= 801s  state=  1.467 MB  ckpt=168 ms  tm=874.5 MiB
+  t= 813s  state=  1.467 MB  ckpt=114 ms  tm=873.0 MiB
+
+=== eviction OFF: resetting stack
+  t=  10s  state=    0.0 MB  ckpt=None ms  tm=656.8 MiB
+  t=  24s  state=    0.0 MB  ckpt=None ms  tm=742.0 MiB
+  t=  38s  state=  0.429 MB  ckpt=18638 ms  tm=792.1 MiB
+  t=  51s  state=  0.429 MB  ckpt=18638 ms  tm=801.7 MiB
+  t=  65s  state=  1.367 MB  ckpt=17797 ms  tm=812.3 MiB
+  t=  78s  state=  1.671 MB  ckpt=4964 ms  tm=807.4 MiB
+  t=  90s  state=  1.671 MB  ckpt=4964 ms  tm=831.2 MiB
+  t= 103s  state=  1.671 MB  ckpt=4964 ms  tm=824.9 MiB
+  t= 116s  state=  2.007 MB  ckpt=8786 ms  tm=825.6 MiB
+  t= 129s  state=  2.007 MB  ckpt=8786 ms  tm=841.5 MiB
+  t= 142s  state=  2.451 MB  ckpt=4876 ms  tm=833.3 MiB
+  t= 156s  state=  2.451 MB  ckpt=4876 ms  tm=846.4 MiB
+  t= 170s  state=  2.971 MB  ckpt=7624 ms  tm=822.3 MiB
+  t= 183s  state=  2.971 MB  ckpt=7624 ms  tm=831.7 MiB
+  t= 198s  state=  2.971 MB  ckpt=7624 ms  tm=842.8 MiB
+  t= 213s  state=  2.971 MB  ckpt=7624 ms  tm=836.8 MiB
+  t= 227s  state=  3.288 MB  ckpt=28319 ms  tm=839.0 MiB
+  t= 240s  state=  3.288 MB  ckpt=28319 ms  tm=856.0 MiB
+  t= 254s  state=  3.644 MB  ckpt=26239 ms  tm=834.4 MiB
+  t= 268s  state=  3.644 MB  ckpt=26239 ms  tm=845.7 MiB
+  t= 282s  state=  3.952 MB  ckpt=29635 ms  tm=857.0 MiB
+  t= 295s  state=  3.952 MB  ckpt=29635 ms  tm=853.8 MiB
+  t= 309s  state=   4.25 MB  ckpt=19688 ms  tm=852.2 MiB
+  t= 322s  state=   4.25 MB  ckpt=19688 ms  tm=864.5 MiB
+  t= 335s  state=  4.461 MB  ckpt=13388 ms  tm=872.1 MiB
+  t= 349s  state=  4.658 MB  ckpt=5785 ms  tm=859.6 MiB
+  t= 362s  state=  4.658 MB  ckpt=5785 ms  tm=850.4 MiB
+  t= 374s  state=  4.703 MB  ckpt=4135 ms  tm=852.3 MiB
+  t= 387s  state=  4.703 MB  ckpt=4135 ms  tm=882.9 MiB
+  t= 402s  state=  4.703 MB  ckpt=4135 ms  tm=866.7 MiB
+  t= 414s  state=  4.979 MB  ckpt=6879 ms  tm=856.6 MiB
+  t= 427s  state=  4.979 MB  ckpt=6879 ms  tm=863.8 MiB
+  t= 440s  state=  5.078 MB  ckpt=7816 ms  tm=860.3 MiB
+  t= 453s  state=  5.078 MB  ckpt=7816 ms  tm=878.0 MiB
+  t= 465s  state=  5.211 MB  ckpt=4169 ms  tm=875.4 MiB
+  t= 478s  state=  5.211 MB  ckpt=4169 ms  tm=873.6 MiB
+  t= 491s  state=  5.211 MB  ckpt=4169 ms  tm=871.7 MiB
+  t= 503s  state=  5.437 MB  ckpt=4840 ms  tm=883.0 MiB
+  t= 516s  state=  5.437 MB  ckpt=4840 ms  tm=886.2 MiB
+  t= 529s  state=  5.781 MB  ckpt=4647 ms  tm=881.2 MiB
+  t= 542s  state=  5.781 MB  ckpt=4647 ms  tm=881.7 MiB
+  t= 554s  state=  5.781 MB  ckpt=4647 ms  tm=869.0 MiB
+  t= 568s  state=  5.908 MB  ckpt=9583 ms  tm=871.1 MiB
+  t= 582s  state=  5.908 MB  ckpt=9583 ms  tm=869.4 MiB
+  t= 595s  state=  5.982 MB  ckpt=7183 ms  tm=878.6 MiB
+  t= 608s  state=  5.982 MB  ckpt=7183 ms  tm=882.0 MiB
+  t= 620s  state=  6.125 MB  ckpt=2499 ms  tm=880.6 MiB
+  t= 633s  state=  6.125 MB  ckpt=2499 ms  tm=878.9 MiB
+  t= 646s  state=  6.244 MB  ckpt=2665 ms  tm=873.3 MiB
+  t= 659s  state=  6.244 MB  ckpt=2665 ms  tm=888.0 MiB
+  t= 672s  state=  6.244 MB  ckpt=2665 ms  tm=874.7 MiB
+  t= 685s  state=  6.396 MB  ckpt=2333 ms  tm=872.7 MiB
+  t= 697s  state=  6.396 MB  ckpt=2333 ms  tm=868.5 MiB
+  t= 710s  state=  6.382 MB  ckpt=2123 ms  tm=873.4 MiB
+  t= 721s  state=  6.382 MB  ckpt=2123 ms  tm=863.6 MiB
+  t= 734s  state=  6.383 MB  ckpt=1416 ms  tm=871.6 MiB
+  t= 746s  state=  6.383 MB  ckpt=1416 ms  tm=868.4 MiB
+  t= 759s  state=  6.383 MB  ckpt=1416 ms  tm=868.3 MiB
+  t= 771s  state=  6.383 MB  ckpt=273 ms  tm=871.9 MiB
+  t= 784s  state=  6.383 MB  ckpt=273 ms  tm=870.8 MiB
+  t= 797s  state=  6.383 MB  ckpt=149 ms  tm=869.0 MiB
+  t= 809s  state=  6.383 MB  ckpt=149 ms  tm=857.1 MiB
+  t= 821s  state=  6.383 MB  ckpt=206 ms  tm=854.8 MiB
+[
+  {
+    "mode": "on",
+    "speedup": 120.0,
+    "event_minutes": 1440.0,
+    "final_state_mb": 1.467,
+    "max_state_mb": 3.232,
+    "max_checkpoint_ms": 36837,
+    "mean_checkpoint_ms": 11055,
+    "peak_tm_mem_mib": 891.9,
+    "watchdog_cutoff": null
+  },
+  {
+    "mode": "off",
+    "speedup": 120.0,
+    "event_minutes": 1440.0,
+    "final_state_mb": 6.383,
+    "max_state_mb": 6.396,
+    "max_checkpoint_ms": 29635,
+    "mean_checkpoint_ms": 8183,
+    "peak_tm_mem_mib": 888.0,
+    "watchdog_cutoff": null
+  }
+]
+python :  Network sohamameybdc_default Creating 
+At line:1 char:365
++ ... urces\bin"; python -u eval/ablation.py --speedup 120 --minutes 1440 * ...
++                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: ( Network sohamameybdc_default Creating :String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+ Network sohamameybdc_default Creating 
+ Network sohamameybdc_default Created 
+ Network sohamameybdc_default Created 
+ Container sohamameybdc-eval-run-ca66859e8237 Creating 
+ Container sohamameybdc-eval-run-ca66859e8237 Created 
+# Eviction ablation
+
+Same replay (24 h of event time at 120x), fresh state per run.
+
+| Run | Final state (MB) | Max state (MB) | Mean checkpoint (ms) | Max checkpoint (ms) | Peak TM memory (MiB) | Watchdog cutoff |
+|---|---|---|---|---|---|---|
+| TTL + LRU eviction ON | 1.467 | 3.232 | 11055 | 36837 | 891.9 | not reached |
+| Eviction OFF | 6.383 | 6.396 | 8183 | 29635 | 888.0 | not reached |

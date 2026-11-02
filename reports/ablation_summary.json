@@ -1,0 +1,24 @@
+[
+  {
+    "mode": "on",
+    "speedup": 120.0,
+    "event_minutes": 1440.0,
+    "final_state_mb": 1.467,
+    "max_state_mb": 3.232,
+    "max_checkpoint_ms": 36837,
+    "mean_checkpoint_ms": 11055,
+    "peak_tm_mem_mib": 891.9,
+    "watchdog_cutoff": null
+  },
+  {
+    "mode": "off",
+    "speedup": 120.0,
+    "event_minutes": 1440.0,
+    "final_state_mb": 6.383,
+    "max_state_mb": 6.396,
+    "max_checkpoint_ms": 29635,
+    "mean_checkpoint_ms": 8183,
+    "peak_tm_mem_mib": 888.0,
+    "watchdog_cutoff": null
+  }
+]
