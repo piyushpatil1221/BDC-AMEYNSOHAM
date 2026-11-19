@@ -65,3 +65,34 @@ Starting stack (--profile core)...
  Container sohamameybdc-kafka-1 Started 
  Container sohamameybdc-scylla-1 Started 
  Container sohamameybdc-scylla-1 Waiting 
+ Container sohamameybdc-taskmanager-1 Started 
+ Container sohamameybdc-scylla-1 Healthy 
+ Container sohamameybdc-init-1 Starting 
+ Container sohamameybdc-init-1 Started 
+ Container sohamameybdc-init-1 Waiting 
+ Container sohamameybdc-init-1 Waiting 
+ Container sohamameybdc-init-1 Exited 
+ Container sohamameybdc-serving-1 Starting 
+ Container sohamameybdc-init-1 Exited 
+ Container sohamameybdc-kafka-streams-1 Starting 
+ Container sohamameybdc-serving-1 Started 
+ Container sohamameybdc-kafka-streams-1 Started 
+Submitting the Flink job...
+ Container sohamameybdc-flink-submit-run-6f7a7735eb5a Creating 
+ Container sohamameybdc-flink-submit-run-6f7a7735eb5a Created 
+WARNING: Unknown module: jdk.compiler specified to --add-exports
+WARNING: Unknown module: jdk.compiler specified to --add-exports
+WARNING: Unknown module: jdk.compiler specified to --add-exports
+WARNING: Unknown module: jdk.compiler specified to --add-exports
+WARNING: Unknown module: jdk.compiler specified to --add-exports
+Job has been submitted with JobID c5657edc7b75416e39baa2d248750f9e
+Starting the dashboard on http://localhost:3000 ...
+Replaying 2880 event-minutes at 60x (background)...
+Injecting the breaking-news burst (sports)...
+ Container sohamameybdc-replay-run-be8f103181ff Creating 
+ Container sohamameybdc-replay-run-be8f103181ff Created 
+[burst 83660] 12 'sports' articles at event time 1573273606000
+[burst 83660] done: 3600 impressions, 1296 clicks over 90 event-minutes
+Generating steady recommendation traffic for latency metrics (10 min)...
+ Container sohamameybdc-replay-run-7fb16277f7e5 Creating 
+ Container sohamameybdc-replay-run-7fb16277f7e5 Created 

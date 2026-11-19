@@ -21,3 +21,8 @@ dashboard/.next/
 .vscode/
 .idea/
 Thumbs.db
+
+# Stray caches / IDE output / Office lock files
+%USERPROFILE%/
+kafka-streams/bin/
+~$*
